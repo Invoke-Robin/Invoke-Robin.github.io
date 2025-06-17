@@ -1,0 +1,42 @@
+/* Custom PowerShell syntax highlighting for Rouge in Jekyll Chirpy theme */
+
+/* Light mode overrides */
+:root {
+  --ps-keyword: #0070c1;
+  --ps-string: #a31515;
+  --ps-variable: #267f99;
+  --ps-comment: #6a9955;
+  --ps-command: #795e26;
+}
+
+.highlight .k { color: var(--ps-keyword); } /* keyword */
+.highlight .s { color: var(--ps-string); } /* string */
+.highlight .nv { color: var(--ps-variable); } /* variable */
+.highlight .c { color: var(--ps-comment); font-style: italic; } /* comment */
+.highlight .nb { color: var(--ps-command); } /* built-in name */
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ps-keyword: #4fc1ff;
+    --ps-string: #ffb86c;
+    --ps-variable: #8be9fd;
+    --ps-comment: #50fa7b;
+    --ps-command: #f1fa8c;
+  }
+}
+
+/* Ensure code blocks are readable */
+.highlight pre, pre.highlight {
+  background: inherit !important;
+  color: inherit !important;
+  border-radius: 6px;
+  padding: 1em;
+  overflow-x: auto;
+}
+
+/* Optional: make code font more readable */
+code, pre {
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', 'Liberation Mono', monospace;
+  font-size: 1em;
+}
