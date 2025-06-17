@@ -45,7 +45,7 @@ One thing that bothered me a lot in the beginning was that I would have to build
 
 The result of this helper function is instead of you having to do this:
 
-```PowerShell
+```powershell
 $Header = @{
     'Authorization' = "---Insert Token Here---"
 }
@@ -54,7 +54,7 @@ $Result = Invoke-RestMethod -Uri "https://graph.microsoft.com/v1.0/groups/" -Met
 
 You could simply do this:
 
-```PowerShell
+```powershell
 $Result = Invoke-RestRequest -Uri "groups"
 ```
 
@@ -86,7 +86,7 @@ The second part of the series will cover this function, and perhaps how to set u
 
 The original ADAL code looked something like this (original work not fully done by me):
 
-```PowerShell
+```powershell
 function Get-AuthToken {
     [cmdletbinding()]
     param(
@@ -155,7 +155,7 @@ function Get-AuthToken {
 
 and then we also have to check for the existance and expiration of the token by:
 
-```PowerShell
+```powershell
 if ($global:authToken) {
     $DateTime = (Get-Date).ToUniversalTime()
     $TokenExpires = ($authToken.ExpiresOn.datetime - $DateTime).Minutes
@@ -181,7 +181,7 @@ It's a bit messy, some best practices broken like $null being on the wrong side,
 
 The newer version after the deprecation of ADAL:
 
-```PowerShell
+```powershell
 function Get-AuthToken {
     if ($script:authToken) {
         $DateTime = (Get-Date).ToUniversalTime()
@@ -208,7 +208,7 @@ Now, we can check both if the actual token exists, and if it's expired, then we 
 
 # Install Modules Code History
 
-```PowerShell
+```powershell
 function Install-MissingModule {
     [CmdletBinding()]
     param (
