@@ -1,36 +1,32 @@
 ---
 title: "Introducing: A series of helpers"
 date: 2025-06-14
-author: Robin Gustavsson
 summary: "This post will introduce what's coming."
 tags: [Graph, PowerShell, MSAL]
 ---
 
-<!-- omit from toc -->
-# Table of Contents
-
 - [Introduction](#introduction)
 - [A series of series](#a-series-of-series)
 - [The Graph series, a brief history on what was and what's to come](#the-graph-series-a-brief-history-on-what-was-and-whats-to-come)
-  - [Why not use the Microsoft Graph SDK?](#why-not-use-the-microsoft-graph-sdk)
+    - [Why not use the Microsoft Graph SDK?](#why-not-use-the-microsoft-graph-sdk)
 - [The dependency issue series?](#the-dependency-issue-series)
 - [Authentication Code History](#authentication-code-history)
 - [Install Modules Code History](#install-modules-code-history)
 - [Conclusion](#conclusion)
 
-# Introduction
+## Introduction
 
 This first post will set the stage for a series on PowerShell automation and scripting for Microsoft Graph and module management.  
 There is a lot of history behind my upcoming blog post plans, so instead of polluting the posts themselves, I'm going to condense the history in this post, preparing for the upcoming series.
 
-# A series of series
+## A series of series
 
 I'm going to start this blog big with a couple of series, the first one being about how I automate in Graph with PowerShell, the second one is on how to create a script for installing your own modules ultra-fast.  
 I've not decided on the third or following parts yet, we'll see when we get there, but I'm thinking either how to painlessly traverse in Active Directory with PowerShell or DevOps module automation (versioning including beta versions, publishing, automating the psd/psm files).
 
 If you don't care about the history or out of date code, feel free to skip this post altogether.
 
-# The Graph series, a brief history on what was and what's to come
+## The Graph series, a brief history on what was and what's to come
 
 My real PowerShell journey started with Graph, back then I had a lot of help from a colleague who taught me how to navigate in Graph, introduced me to JSON and how to handle it with PowerShell, how to connect, build JSON bodies and create stuff in Intune from the console.  
 Back when we started to automate stuff in Graph, we used to authenticate to Graph with something called ADAL, Azure Active Directory Authentication Library, this worked perfectly fine and we had our custom made snippet for authentication which we put in the beginning of our scripts.
@@ -60,7 +56,7 @@ $Result = Invoke-RestRequest -Uri "groups"
 
 Which simplifies the script a lot. This example is of course a very simple one, but the point is that a helper function can dramatically reduce boilerplate code, and saves time writing it as well. It's also easier on the eye, instead of having a massive amount of code, a function with a good name is supposed to tell you what it's doing without you having to read the code, at least that's my opinion.
 
-## Why not use the Microsoft Graph SDK?
+#### Why not use the Microsoft Graph SDK?
 
 One might wonder, why struggle with authenticating manually when there are official Microsoft modules for using Graph?  
 Well, the answer is that these modules are lacking in functionality and they where prone to change, or at least they where at the time. The modules were missing a LOT of functionality we needed, making the code an awkward blend of functions by Microsoft and our own custom written code for Graph. We simply decided that it wasn't worth relying on these modules, given the risk of changes and missing functionality. That decision has stuck with us, for better or worse.  
@@ -70,7 +66,7 @@ From what I know, from others that are using it, the Microsoft.Graph SDK is actu
 
 If you are new, I think that the Microsoft Graph SDK is probably a good way to start, with the ability to do separate endpoint calls to the Graph API if a function out of the 25k is missing. If you are like me, want to learn more about the API and how to be in full control of the situation, I would go with my method all the way!
 
-# The dependency issue series?
+## The dependency issue series?
 
 When sharing my scripts with my colleagues, I often found that the script would not work on their machines. Most often it was a dependency issue, like a missing module, specifically the MSAL.PS module.  
 At first I wrote a little snippet of code to install modules based on an array of names, the snippet basically foreach'ed them to the `Get-Module -ListAvailable` and `Install-Module` command, I think I also called `Get-Module -ListAvailable` with each loop at some version of the script.
@@ -82,7 +78,7 @@ An iteration has recently been made to this function making it able to install a
 
 The second part of the series will cover this function, and perhaps how to set up a module in Azure DevOps Artifact
 
-# Authentication Code History
+## Authentication Code History
 
 The original ADAL code looked something like this (original work not fully done by me):
 
@@ -206,7 +202,7 @@ function Get-AuthToken {
 
 Now, we can check both if the actual token exists, and if it's expired, then we should trigger a renewal, or if it doesn't exist, create a new one interactively, all in just a few lines of code!
 
-# Install Modules Code History
+## Install Modules Code History
 
 ```powershell
 function Install-MissingModule {
@@ -231,6 +227,6 @@ function Install-MissingModule {
 }
 ```
 
-# Conclusion
+## Conclusion
 
 This post gave a brief walk through of what scripts we used, and why we did as we did, and the next posts will all be about what these scripts evolved into!
