@@ -1,7 +1,6 @@
 ---
 title: "The Graph Series - Part One: Painless authentication to the Graph API"
 date: 2025-06-16
-author: Robin Gustavsson
 summary: "Authenticating painlessly with Graph"
 tags: [Graph, .NET, MSAL]
 ---
@@ -83,7 +82,8 @@ function Get-AuthToken {
 }
 ```
 
-I'll describe the parameters and why they're needed:
+I'll describe the parameters and why they're needed:  
+
 | Parameter    | Type                     | Description                                                                                                                                                                                                                                                                               |
 | ------------ | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | TenantUri    | string                   | This is the Azure Authority URI for the tenant you wish to authenticate to, it can be assigned as a parameter or inside a script as variable.                                                                                                                                             |
