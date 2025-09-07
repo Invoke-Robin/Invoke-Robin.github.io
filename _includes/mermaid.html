@@ -1,0 +1,167 @@
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  /* 0) One-time: convert fenced code → <div class="mermaid"> and stash DSL */
+  document.querySelectorAll("code.language-mermaid").forEach((code) => {
+    const wrapper =
+      code.closest("figure.highlight, pre, div.highlight") ||
+      code.parentElement;
+    const el = document.createElement("div");
+    el.className = "mermaid";
+    el.textContent = code.textContent;
+    el.dataset.mmd = code.textContent; // keep raw DSL for re-renders
+    (wrapper || code).replaceWith(el);
+  });
+  document.querySelectorAll("div.mermaid").forEach((el) => {
+    if (!el.dataset.mmd) el.dataset.mmd = el.textContent;
+  });
+
+  /* Helpers: read real page colors (no hard-coded hex unless unavoidable) */
+  const transparentRe =
+    /rgba?\(\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\)|^transparent$/i;
+  const toRGB = (str) => {
+    const probe = document.createElement("span");
+    probe.style.color = str;
+    document.body.appendChild(probe);
+    const rgb = getComputedStyle(probe).color;
+    probe.remove();
+    const m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+    return m ? { r: +m[1], g: +m[2], b: +m[3] } : { r: 17, g: 17, b: 17 };
+  };
+  const rgbStr = ({ r, g, b }) =>
+    `rgb(${Math.round(r)}, ${Math.round(b)}, ${Math.round(b)})`.replace(
+      /, (\d+), (\d+)\)$/,
+      (_, g, b) => `, ${g}, ${b})`
+    ); // keep order r,g,b
+  const mix = (a, b, t) => ({
+    r: a.r * (1 - t) + b.r * t,
+    g: a.g * (1 - t) + b.g * t,
+    b: a.b * (1 - t) + b.b * t,
+  });
+  const effectiveBg = (el) => {
+    let cur = el;
+    while (cur) {
+      const bg = getComputedStyle(cur).backgroundColor;
+      if (bg && !transparentRe.test(bg)) return bg;
+      cur = cur.parentElement;
+    }
+    return "#ffffff";
+  };
+  const detectColors = () => {
+    const bodyCS = getComputedStyle(document.body);
+    const text = bodyCS.color || "#111111";
+    const bg = effectiveBg(document.body);
+    // derive accent from link color
+    const a = document.createElement("a");
+    a.href = "#";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    const link = getComputedStyle(a).color;
+    a.remove();
+
+    const textRGB = toRGB(text),
+      bgRGB = toRGB(bg),
+      linkRGB = toRGB(link);
+    const borderRGB = mix(textRGB, bgRGB, 0.4);
+    const panelRGB = mix(bgRGB, textRGB, 0.06);
+
+    return {
+      text: `rgb(${textRGB.r}, ${textRGB.g}, ${textRGB.b})`,
+      bg: `rgb(${bgRGB.r}, ${bgRGB.g}, ${bgRGB.b})`,
+      border: `rgb(${borderRGB.r}, ${borderRGB.g}, ${borderRGB.b})`,
+      panel: `rgb(${panelRGB.r}, ${panelRGB.g}, ${panelRGB.b})`,
+      accent: `rgb(${linkRGB.r}, ${linkRGB.g}, ${linkRGB.b})`,
+    };
+  };
+
+  const configFromPage = () => {
+    const c = detectColors();
+    return {
+      startOnLoad: false,
+      theme: "base",
+      themeVariables: {
+        background: c.bg,
+        primaryTextColor: c.text,
+        primaryBorderColor: c.border,
+        lineColor: c.border,
+        clusterBorder: c.border,
+        clusterBkg: c.panel,
+        primaryColor: c.panel,
+        tertiaryColor: c.accent,
+        edgeLabelBackground: c.bg,
+      },
+    };
+  };
+
+  /* Render with change detection so we only re-run when colors actually change */
+  let lastKey = "";
+  const colorKey = () => {
+    const c = detectColors();
+    return `${c.text}|${c.bg}|${c.border}|${c.panel}|${c.accent}`;
+  };
+
+  function render(force = false) {
+    const key = colorKey();
+    if (!force && key === lastKey) return;
+    lastKey = key;
+
+    document.querySelectorAll(".mermaid").forEach((el) => {
+      if (el.dataset.mmd) el.textContent = el.dataset.mmd;
+      el.removeAttribute("data-processed");
+    });
+
+    mermaid.initialize(configFromPage());
+    mermaid.run({ querySelector: ".mermaid" });
+  }
+
+  // Initial render
+  render(true);
+
+  /* Robust change detection:
+     - Any attribute/class change anywhere (subtree)
+     - Stylesheet swaps/attribute changes in <head>
+     - System dark/light changes
+     - Debounced + double-RAF so new CSS has applied before sampling colors
+  */
+  const debounce = (fn, ms = 120) => {
+    let t;
+    return (...a) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...a), ms);
+    };
+  };
+  const schedule = debounce(() => {
+    requestAnimationFrame(() => requestAnimationFrame(() => render()));
+  }, 50);
+
+  const rootObs = new MutationObserver(schedule);
+  rootObs.observe(document.documentElement, {
+    attributes: true,
+    subtree: true,
+    childList: true,
+  });
+
+  const headObs = new MutationObserver(schedule);
+  headObs.observe(document.head, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+  });
+
+  const mql = window.matchMedia?.("(prefers-color-scheme: dark)");
+  if (mql) {
+    if (mql.addEventListener) mql.addEventListener("change", schedule);
+    else mql.addListener(schedule); // Safari < 14
+  }
+
+  window.addEventListener("pageshow", schedule);
+
+  // optional: expose manual hook from console if you want
+  window.forceMermaidRerender = () => render(true);
+</script>
+
+<style>
+  .mermaid {
+    font-family: inherit;
+  } /* keep your site typography */
+</style>
