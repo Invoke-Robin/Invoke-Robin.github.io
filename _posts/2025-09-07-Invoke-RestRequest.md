@@ -3,6 +3,7 @@ title: "The Graph Series - Part Two: Easy to use wrapper for the Graph API"
 date: 2025-09-07
 summary: "Easily navigate Graph"
 tags: [Graph, .NET, MSAL]
+tail_includes: [mermaid.html]
 ---
 
 # Table of Contents
