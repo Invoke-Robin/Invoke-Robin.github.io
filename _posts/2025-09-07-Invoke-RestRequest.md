@@ -20,6 +20,7 @@ tags: [Graph, .NET, MSAL]
   - [Full function](#full-function)
   - [High level flowchart](#high-level-flowchart)
   - [Conclusion](#conclusion)
+  - [Next up](#next-up)
 
 ## What you'll learn
 
@@ -157,7 +158,7 @@ try {
 ```
 ### Error handling
 
-When things go wrong, we need to properly display good information to the user. You are probably the one that will need to fix the problem if you've shared the module someone else, so the better the error information the less time you have to spend in the debugger!  
+When things go wrong, we need to properly display good information to the user. You are probably the one that will need to fix the problem if you've shared the module with someone else, so the better the error information the less time you have to spend in the debugger!  
 Usually Graph returns error details deeply nested into the response, I try to format this nicely and output only what is necessary to quickly figure out what's wrong. I also send the whole errorobject to the global scoped variable `$ResponseError`.  
 > You are not supposed to use global scoped variables but this way we can retrieve the full error if needed even if the script has exited but the PowerShell session is still running.
 > This might save you time in the debugger or riddling your code with `Write-Host`.
@@ -404,3 +405,6 @@ Instead of copy-pasting or rebuilding parameters you can simply:
 - Let the function automatically handle those pesky 429/Too many requests responses
 
 The functions `Get-AuthToken` and `Invoke-RestRequest` started as simple local functions in a couple of scripts to help me reduce the time needed to make Graph calls, but has since been converted into a fully fledged module and become a core part of all our Graph scripts today.
+
+## Next up
+In the next post I will try to close this series by giving some tips and tricks, post wrappers or ideas for automation and some potential points of improvement.
